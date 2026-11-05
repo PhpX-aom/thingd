@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    *, *::before, *::after {
+      font-family: 'Sarabun', sans-serif !important;
+      box-sizing: border-box;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+    html, body {
+      width: 100%;
+      height: auto;
+      margin: 0;
+      padding: 0;
+      font-family: 'Sarabun', sans-serif !important; 
+      background-color: #f4f6f8; 
+      overflow-x: hidden;
+    }
+
+    .app-container {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      padding-bottom: 20px;
+    }
+
+    .search-box { 
+      width: 100%; 
+      padding: 10px 14px; 
+      font-size: 15px; 
+      border: 2px solid #2e7d32; 
+      border-radius: 12px; 
+      margin-bottom: 12px; 
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    /* ปรับปุ่มกรองบนมือถือให้เรียงสวย ไม่เบียดกัน */
+    .category-buttons { 
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px; 
+      margin-bottom: 15px; 
+      width: 100%;
+    }
+
+    .btn { 
+      flex: 1 1 calc(33% - 6px); /* บนมือถือให้เรียงแถวละ 3 ปุ่ม หรือยืดหยุ่นตามจอ */
+      min-width: 90px;
+      padding: 8px 6px; 
+      border: 1px solid transparent; 
+      border-radius: 8px; 
+      font-weight: 600; 
+      cursor: pointer; 
+      font-size: 13px;
+      transition: all 0.2s ease; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      text-align: center;
+    }
+    .btn:hover { transform: translateY(-1px); }
+
+    .btn-all { background-color: #e2e8f0; color: #475569; border-color: #cbd5e1; }
+    .btn-wet { background-color: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+    .btn-recycle { background-color: #fff8e1; color: #b78103; border-color: #ffe082; }
+    .btn-general { background-color: #e3f2fd; color: #1565c0; border-color: #90caf9; }
+    .btn-hazard { background-color: #ffebee; color: #c62828; border-color: #ef9a9a; }
+
+    .btn-all.active { background-color: #334155; color: #ffffff; border-color: #334155; }
+    .btn-wet.active { background-color: #2e7d32; color: #ffffff; border-color: #2e7d32; }
+    .btn-recycle.active { background-color: #fbc02d; color: #212121; border-color: #fbc02d; }
+    .btn-general.active { background-color: #1976d2; color: #ffffff; border-color: #1976d2; }
+    .btn-hazard.active { background-color: #d32f2f; color: #ffffff; border-color: #d32f2f; }
+    
+    /* การ์ดขยะปรับให้เหมาะกับจอแคบของมือถือ */
+    .waste-grid { 
+      display: grid; 
+      grid-template-columns: 1fr; /* บนมือถือแสดงการ์ดเรียงแถวเดี่ยวเต็มความกว้าง */
+      gap: 12px; 
+      width: 100%;
+    }
+
+    @media (min-width: 600px) {
+      .waste-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* ถ้าจอแท็บเล็ต/คอม ถึงจะแบ่งคอลัมน์ */
+      }
+    }
+    
+    .waste-card { 
+      background: white; 
+      padding: 14px; 
+      border-radius: 12px; 
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05); 
+      border-left: 6px solid #ccc; 
+      cursor: pointer; 
+    }
+    .wet { border-left-color: #2e7d32; }
+    .recycle { border-left-color: #fbc02d; }
+    .general { border-left-color: #1976d2; }
+    .hazard { border-left-color: #d32f2f; }
+    
+    .waste-title { font-weight: 700; font-size: 17px; margin-bottom: 4px; color: #1e293b; }
+    .waste-type { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .type-wet { color: #2e7d32; }
+    .type-recycle { color: #b78103; }
+    .type-general { color: #1976d2; }
+    .type-hazard { color: #c62828; }
+    .waste-detail { font-size: 13px; color: #475569; margin-top: 2px; }
+    
+    #loading { text-align: center; font-size: 15px; color: #666; margin: 20px; }
+
+    .not-found-box {
+      text-align: center; padding: 30px 15px;
+      background: white; border-radius: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .not-found-icon { font-size: 40px; color: #94a3b8; margin-bottom: 8px; }
+    .not-found-text { font-size: 16px; font-weight: 600; color: #64748b; }
+
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(6px); z-index: 99999; justify-content: center; align-items: center; padding: 12px;
+    }
+
+    .modal-card {
+      background: white; padding: 20px; border-radius: 16px; width: 100%;
+      max-width: 400px; max-height: 85vh; overflow-y: auto;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;
+      border-top: 6px solid #ccc; margin: auto;
+    }
+
+    .close-btn {
+      position: absolute; top: 12px; right: 15px; font-size: 20px;
+      font-weight: bold; color: #888; cursor: pointer; border: none; background: none;
+    }
+
+    .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; color: #1e293b; padding-right: 20px; }
+    .modal-type { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+    .modal-section { font-size: 14px; line-height: 1.5; color: #334155; margin-bottom: 8px; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <input type="text" id="searchInput" class="search-box" onkeyup="filterWaste()" placeholder="พิมพ์ชื่อขยะที่ต้องการค้นหา...">
+
+    <div class="category-buttons">
+      <button class="btn btn-all active" onclick="filterCategory('all', this)">ทั้งหมด</button>
+      <button class="btn btn-wet" onclick="filterCategory('wet', this)">ขยะเปียก</button>
+      <button class="btn btn-recycle" onclick="filterCategory('recycle', this)">ขยะรีไซเคิล</button>
+      <button class="btn btn-general" onclick="filterCategory('general', this)">ขยะทั่วไป</button>
+      <button class="btn btn-hazard" onclick="filterCategory('hazard', this)">ขยะอันตราย</button>
+    </div>
+
+    <div id="loading">กำลังโหลดข้อมูลจาก Google Sheets...</div>
+    <div class="waste-grid" id="wasteList"></div>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal-card" id="modalCard">
+      <button class="close-btn" onclick="closeModalDirect()">✕</button>
+      <div class="modal-title" id="mTitle">ชื่อขยะ</div>
+      <div class="modal-type" id="mType">ประเภทถัง</div>
+      <div class="modal-section" id="mTime"><b>ระยะเวลาย่อยสลาย:</b> -</div>
+      <div class="modal-section" id="mDetail"><b>คุณลักษณะรายละเอียด:</b> -</div>
+    </div>
+  </div>
+
+  <script>
+    const SHEET_ID = '16acyhxmrM-kBQonV11HHiIbZaJ9_oPf7xg0VqzeoV9Q'; 
+    const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+
+    let allWasteData = [];
+    let currentCategory = 'all';
+
+    async function fetchSheetData() {
+      try {
+        const response = await fetch(SHEET_URL);
+        const text = await response.text();
+        const jsonData = JSON.parse(text.substring(47, text.length - 2));
+        const rows = jsonData.table.rows;
+
+        allWasteData = [];
+
+        rows.forEach((row, index) => {
+          if (index < 1) return; 
+          const c = row.c;
+          
+          if (c[0] && c[0].v) {
+            allWasteData.push({ name: c[0].v, time: c[1] ? c[1].v : '-', detail: c[2] ? c[2].v : '-', type: 'wet', typeName: 'ขยะเปียก' });
+          }
+          if (c[4] && c[4].v) {
+            allWasteData.push({ name: c[4].v, time: c[5] ? c[5].v : '-', detail: c[6] ? c[6].v : '-', type: 'recycle', typeName: 'ขยะรีไซเคิล' });
+          }
+          if (c[8] && c[8].v) {
+            allWasteData.push({ name: c[8].v, time: c[9] ? c[9].v : '-', detail: c[10] ? c[10].v : '-', type: 'general', typeName: 'ขยะทั่วไป' });
+          }
+          if (c[12] && c[12].v) {
+            allWasteData.push({ name: c[12].v, time: c[13] ? c[13].v : '-', detail: c[14] ? c[14].v : '-', type: 'hazard', typeName: 'ขยะอันตราย' });
+          }
+        });
+
+        allWasteData.sort((a, b) => a.name.localeCompare(b.name, 'th'));
+
+        document.getElementById('loading').style.display = 'none';
+        renderCards();
+      } catch (error) {
+        document.getElementById('loading').innerText = 'ไม่สามารถโหลดข้อมูลได้ ตรวจสอบการตั้งค่าแชร์ไฟล์ Google Sheets';
+      }
+    }
+
+    function renderCards() {
+      const listContainer = document.getElementById('wasteList');
+      const searchKeyword = document.getElementById('searchInput').value.toLowerCase();
+      listContainer.innerHTML = '';
+
+      let matchCount = 0;
+
+      allWasteData.forEach(item => {
+        const matchesSearch = item.name.toLowerCase().includes(searchKeyword) || item.detail.toLowerCase().includes(searchKeyword);
+        const matchesCategory = (currentCategory === 'all' || item.type === currentCategory);
+
+        if (matchesSearch && matchesCategory) {
+          matchCount++;
+          const card = document.createElement('div');
+          card.className = `waste-card ${item.type}`;
+          card.innerHTML = `
+            <div class="waste-title">${item.name}</div>
+            <div class="waste-type type-${item.type}">${item.typeName}</div>
+            <div class="waste-detail"><b>ย่อยสลาย:</b> ${item.time}</div>
+            <div style="font-size: 12px; color: #2e7d32; margin-top: 6px; font-weight: bold;">กดเพื่อดูรายละเอียดเต็ม</div>
+          `;
+          card.onclick = () => openModal(item);
+          listContainer.appendChild(card);
+        }
+      });
+
+      if (matchCount === 0) {
+        listContainer.innerHTML = `
+          <div class="not-found-box">
+            <div class="not-found-icon">🔎❓</div>
+            <div class="not-found-text">ไม่พบนะ! ลองหาใหม่ดูน้าา!</div>
+          </div>
+        `;
+      }
+    }
+
+    function openModal(item) {
+      document.getElementById('mTitle').innerText = item.name;
+      document.getElementById('mType').innerText = item.typeName;
+      document.getElementById('mType').className = `modal-type type-${item.type}`;
+      document.getElementById('mTime').innerHTML = `<b>ระยะเวลาย่อยสลาย:</b> ${item.time}`;
+      document.getElementById('mDetail').innerHTML = `<b>คุณลักษณะรายละเอียด:</b><br>${item.detail}`;
+      
+      const modalCard = document.getElementById('modalCard');
+      const borderColors = { wet: '#2e7d32', recycle: '#fbc02d', general: '#1976d2', hazard: '#c62828' };
+      modalCard.style.borderTopColor = borderColors[item.type] || '#ccc';
+
+      document.getElementById('modalOverlay').style.display = 'flex';
+    }
+
+    function closeModal(event) {
+      if (event.target.id === 'modalOverlay') {
+        document.getElementById('modalOverlay').style.display = 'none';
+      }
+    }
+
+    function closeModalDirect() {
+      document.getElementById('modalOverlay').style.display = 'none';
+    }
+
+    function filterWaste() { renderCards(); }
+    
+    function filterCategory(cat, btnElement) { 
+      currentCategory = cat; 
+      const buttons = document.querySelectorAll('.category-buttons .btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      if(btnElement) btnElement.classList.add('active');
+      renderCards(); 
+    }
+
+    fetchSheetData();
+  </script>
+</body>
+</html>
