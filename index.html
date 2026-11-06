@@ -275,7 +275,7 @@
              onerror="this.parentNode.classList.add('no-logo'); this.remove();">
         <span class="site-title-text">ThingD (ทิ้งดี)</span>
       </h1>
-      <p class="site-tagline">จัดการขยะไม่ใช่เรื่องยาก แค่การปลูกฝังยากเกินกว่า</p>
+      <p class="site-tagline">ไม่มีคำว่า 'ทิ้งไป' อย่างแท้จริง เมื่อเราทิ้งอะไรไป มันก็ต้องไปอยู่ที่ใดที่หนึ่งเสมอ... - Annie Leonard</p>
       <div class="bin-bar" aria-hidden="true">
         <span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span>
       </div>
@@ -414,7 +414,7 @@
       const isFiltered = searchKeyword.trim() !== '' || currentCategory !== 'all';
       document.getElementById('resultCount').innerHTML = isFiltered
         ? `พบ <b>${matchCount}</b> จากทั้งหมด <b>${total}</b> รายการ`
-        : `ขยะทั้งหมด <b>${total}</b> รายการ`;
+        : `รายการขยะทั้งหมด <b>${total}</b> รายการ`;
 
       if (matchCount === 0) {
         listContainer.innerHTML = `
