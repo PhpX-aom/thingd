@@ -7,7 +7,9 @@
   <title>ThingD (ทิ้งดี)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- โหลดฟอนต์แบบไม่บล็อกการแสดงผลหน้าแรก -->
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"></noscript>
 
   <style>
     :root {
@@ -157,18 +159,21 @@
       justify-content: start;
       gap: var(--gap);
     }
-    #wasteList.fade { animation: listIn .3s ease both; }
-    @keyframes listIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    #wasteList.fade { animation: listIn .3s ease; }
+    @keyframes listIn { from { opacity: 0; } to { opacity: 1; } }
 
     .waste-card {
       --c: #94a3b8; --t: #f1f5f9; --i: #334155;
       position: relative; background: var(--card); border-radius: var(--radius);
-      padding: 18px 18px 16px; box-shadow: var(--shadow-sm); border: 1px solid #edf1f4;
-      cursor: pointer; overflow: hidden; display: flex; flex-direction: column; gap: 10px;
+      padding: 14px 18px 16px; box-shadow: var(--shadow-sm); border: 1px solid #edf1f4; border-top: 5px solid var(--c);
+      cursor: pointer; display: flex; flex-direction: column; gap: 10px;
       /* ข้ามการคำนวณ/วาดการ์ดที่อยู่นอกจอ ช่วยให้เลื่อนลื่นขึ้นมากบนมือถือ */
-      content-visibility: auto; contain-intrinsic-size: auto 150px;
+      content-visibility: auto; contain-intrinsic-size: auto 164px;
     }
-    .waste-card::before { content: ""; position: absolute; left: 0; top: 0; right: 0; height: 5px; background: var(--c); }
+    .off { display: none !important; }
+    /* ลำดับ ก→ฮ / ฮ→ก ใช้ตัวแปรที่ฝังไว้ในการ์ดแล้วสลับด้วยคลาสเดียว ไม่ต้องแก้สไตล์ทีละใบ */
+    .waste-card { order: var(--a); }
+    #wasteList.desc .waste-card { order: var(--d); }
     .waste-card:active { transform: scale(.985); }
     .waste-card:focus-visible { outline: 3px solid var(--c); outline-offset: 2px; }
     .waste-card.wet { --c: var(--wet); --t: var(--wet-tint); --i: var(--wet-ink); }
@@ -370,13 +375,21 @@
 
     // ตั้งเป็น false ก่อนนำขึ้นเว็บจริง เพื่อไม่ให้แสดงข้อมูลสาธิตเมื่อโหลดชีตไม่ได้
     const ALLOW_DEMO_FALLBACK = true;
-    const CACHE_KEY = 'thingd_data_v1';
+    const CACHE_KEY = 'thingd_data_v2';
+    const SIG_KEY = 'thingd_sig_v2';
+    const FIRST_CHUNK = 48;   // การ์ดชุดแรกที่สร้างทันที (พอสำหรับเต็มหน้าจอ)
+    const CHUNK = 60;         // ที่เหลือทยอยสร้างทีละชุดตอนเบราว์เซอร์ว่าง ไม่ให้หน้าค้าง
+    const thaiCollator = new Intl.Collator('th');
+    const whenIdle = window.requestIdleCallback ? (f => requestIdleCallback(f, { timeout: 300 })) : (f => setTimeout(f, 30));
+    let buildToken = 0;
 
     let allWasteData = [];
     let currentCategory = 'all';
     let currentSort = 'asc';
     let searchTimer = null;
     let firstPaint = true;
+    let cardEls = [];          // องค์ประกอบการ์ด (สร้างครั้งเดียว ใช้ซ่อน/แสดงแทนการสร้างใหม่)
+    let notFoundEl = null;
 
     const $ = id => document.getElementById(id);
     const listEl = $('wasteList');
@@ -391,7 +404,7 @@
 
     const ARROW = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
     const NOT_FOUND = `
-      <div class="not-found-box">
+      <div class="not-found-box" style="order:999999">
         <div class="not-found-icon">🔎</div>
         <div class="not-found-text">ไม่พบนะ! ลองหาใหม่ดูน้าา!</div>
         <div class="not-found-sub">ลองใช้คำอื่น หรือเลือกหมวด “ทั้งหมด”</div>
@@ -428,7 +441,7 @@
     /* สร้าง HTML ของการ์ดครั้งเดียวต่อรายการ แล้วเก็บไว้ใช้ซ้ำทุกครั้งที่ค้นหา/กรอง */
     function cardHTML(item) {
       const s = TYPE_STYLE[item.type];
-      return `<div class="waste-card ${item.type}" data-i="${item.i}" tabindex="0" role="button">` +
+      return `<div class="waste-card ${item.type}" data-i="${item.i}" style="--a:${item.i};--d:${allWasteData.length - item.i}" tabindex="0" role="button">` +
         `<div class="card-top"><div class="card-ico">${icon(item.type, 24)}</div>` +
         `<div><div class="waste-title">${esc(item.name)}</div>` +
         `<div class="waste-type"><i></i>${esc(item.typeName)}</div></div></div>` +
@@ -439,15 +452,42 @@
 
     function setData(data) {
       allWasteData = data.map(d => Object.assign({}, d));
-      allWasteData.sort((a, b) => String(a.name).localeCompare(String(b.name), 'th'));
+      allWasteData.sort((a, b) => thaiCollator.compare(String(a.name), String(b.name)));
       allWasteData.forEach((it, i) => {
         it.i = i;
         it.s = (String(it.name) + '\n' + String(it.detail)).toLowerCase();
-        it.html = cardHTML(it);
+        it.vis = true;
       });
+
+      // เริ่มจากกรอบว่าง แล้วทยอยสร้างการ์ดเป็นชุดๆ หน้าเว็บจะตอบสนองการแตะได้ระหว่างที่กำลังสร้าง
+      const token = ++buildToken;
+      cardEls = [];
+      listEl.innerHTML = NOT_FOUND;
+      notFoundEl = listEl.firstElementChild;
+
       updateCounts();
       $('loading').style.display = 'none';
-      renderCards();
+      renderCards();            // คำนวณว่าการ์ดไหนแสดง/ซ่อน และอัปเดตจำนวน
+      buildChunk(0, token);
+    }
+
+    function buildChunk(start, token) {
+      if (token !== buildToken) return;      // มีข้อมูลชุดใหม่เข้ามาแล้ว ยกเลิกชุดเก่า
+      const n = allWasteData.length;
+      const end = Math.min(n, start + (start === 0 ? FIRST_CHUNK : CHUNK));
+      let html = '';
+      for (let k = start; k < end; k++) html += cardHTML(allWasteData[k]);
+      notFoundEl.insertAdjacentHTML('beforebegin', html);
+      const kids = listEl.children;
+      for (let k = start; k < end; k++) {
+        cardEls[k] = kids[k];
+        if (!allWasteData[k].vis) kids[k].classList.add('off');
+      }
+      if (end < n) whenIdle(() => buildChunk(end, token));
+    }
+
+    function applySortOrder() {
+      listEl.classList.toggle('desc', currentSort === 'desc');
     }
 
     function parseRows(rows) {
@@ -471,12 +511,13 @@
       return out;
     }
 
-    function readCache() { try { return localStorage.getItem(CACHE_KEY); } catch (e) { return null; } }
-    function writeCache(raw) { try { localStorage.setItem(CACHE_KEY, raw); } catch (e) {} }
+    function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+    function hashStr(s) { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return h + ':' + s.length; }
 
     async function fetchSheetData() {
       // แสดงข้อมูลที่เคยโหลดไว้ทันที (เปิดครั้งที่สองเป็นต้นไปจะไม่ต้องรอเครือข่าย) แล้วค่อยอัปเดตเบื้องหลัง
-      const cachedRaw = readCache();
+      const cachedRaw = lsGet(CACHE_KEY);
       let hasCache = false;
       if (cachedRaw) {
         try { setData(JSON.parse(cachedRaw)); hasCache = true; } catch (e) {}
@@ -486,13 +527,14 @@
       try {
         const response = await fetch(SHEET_URL);
         const text = await response.text();
+        const sig = hashStr(text);
+        if (hasCache && sig === lsGet(SIG_KEY)) return;   // ชีตไม่เปลี่ยน ข้ามการแปลงข้อมูลและวาดใหม่ทั้งหมด
         const jsonData = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1));
         const data = parseRows(jsonData.table.rows);
         if (data.length === 0) throw new Error('empty');
 
-        const raw = JSON.stringify(data);
-        if (hasCache && raw === cachedRaw) return;   // ข้อมูลไม่เปลี่ยน ไม่ต้องวาดใหม่
-        writeCache(raw);
+        lsSet(CACHE_KEY, JSON.stringify(data));
+        lsSet(SIG_KEY, sig);
         setData(data);
       } catch (error) {
         if (hasCache) return;                        // ใช้ข้อมูลที่เคยโหลดไว้ต่อ
@@ -516,21 +558,20 @@
       const kw = rawKeyword.trim().toLowerCase();
       $('searchWrap').classList.toggle('has-text', rawKeyword !== '');
 
-      const src = currentSort === 'desc' ? allWasteData.slice().reverse() : allWasteData;
-      const out = [];
-      for (let k = 0; k < src.length; k++) {
-        const it = src[k];
-        if ((currentCategory === 'all' || it.type === currentCategory) && (kw === '' || it.s.includes(kw))) {
-          out.push(it.html);
-        }
+      if (!notFoundEl) return;
+      let shown = 0;
+      for (let k = 0; k < allWasteData.length; k++) {
+        const it = allWasteData[k];
+        const vis = (currentCategory === 'all' || it.type === currentCategory) && (kw === '' || it.s.includes(kw));
+        if (vis !== it.vis) { it.vis = vis; if (cardEls[k]) cardEls[k].classList.toggle('off', !vis); }
+        if (vis) shown++;
       }
-
-      listEl.innerHTML = out.length ? out.join('') : NOT_FOUND;
+      notFoundEl.classList.toggle('off', shown !== 0);
 
       const total = allWasteData.length;
       const isFiltered = kw !== '' || currentCategory !== 'all';
       $('resultCount').innerHTML = isFiltered
-        ? `พบ <b>${out.length}</b> จากทั้งหมด <b>${total}</b> รายการ`
+        ? `พบ <b>${shown}</b> จากทั้งหมด <b>${total}</b> รายการ`
         : `รายการขยะทั้งหมด <b>${total}</b> รายการ`;
 
       if (firstPaint && total > 0) { listEl.classList.add('fade'); firstPaint = false; }
@@ -596,7 +637,7 @@
       desc.classList.toggle('active', dir === 'desc');
       asc.setAttribute('aria-pressed', dir === 'asc');
       desc.setAttribute('aria-pressed', dir === 'desc');
-      renderCards();
+      applySortOrder();
     }
 
     function filterCategory(cat, btnElement) {
