@@ -3,492 +3,470 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ThingD (ทิ้งดี)</title>
+  <title>ThingD</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
   <style>
-    :root {
-      --ink: #0f172a;
-      --ink-2: #334155;
-      --muted: #64748b;
-      --line: #e2e8f0;
-      --bg: #f3f6f4;
-      --card: #ffffff;
-      --brand: #1b5e20;
-      --brand-2: #2e7d32;
-
-      --wet: #2e7d32;      --wet-tint: #e8f5e9;      --wet-ink: #1b5e20;
-      --recycle: #fbc02d;  --recycle-tint: #fff8e1;  --recycle-ink: #8a6100;
-      --general: #1976d2;  --general-tint: #e3f2fd;  --general-ink: #0d47a1;
-      --hazard: #d32f2f;   --hazard-tint: #ffebee;   --hazard-ink: #b71c1c;
-
-      --radius: 18px;
-      --shadow-sm: 0 1px 2px rgba(15,23,42,.05), 0 2px 8px rgba(15,23,42,.05);
-      --shadow-md: 0 8px 24px rgba(15,23,42,.10);
+    *, *::before, *::after {
+      font-family: 'Sarabun', sans-serif !important;
+      box-sizing: border-box;
     }
 
-    *, *::before, *::after { font-family: 'Sarabun', sans-serif; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    button, .waste-card { touch-action: manipulation; }
-
     ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-    html, body { margin: 0; padding: 0; width: 100%; background: var(--bg); color: var(--ink); overflow-x: hidden; }
-    body { min-height: 100vh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
+    html, body {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Sarabun', sans-serif !important; 
+      background-color: #f4f6f8; 
+      overflow-x: hidden;
+    }
 
-    /* ===== HERO ===== */
-    .hero {
-      position: relative;
-      background:
-        radial-gradient(circle at 12% 20%, rgba(255,255,255,.14) 0, transparent 38%),
-        radial-gradient(circle at 90% 90%, rgba(251,192,45,.25) 0, transparent 40%),
-        linear-gradient(135deg, #14532d 0%, #1b5e20 45%, #2e7d32 100%);
-      color: #fff;
-      padding: 28px 18px 74px;
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-container {
+      flex: 1;
+      width: 100%;
+      max-width: 100%;
+      padding: 10px 18px 24px;
+    }
+
+    .site-header { padding: 18px 0 16px; }
+    .site-title {
+      margin: 0;
+      font-size: 34px;
+      font-weight: 800;
+      line-height: 1.1;
+      color: #1b5e20;
+    }
+
+    /* โลโก้ (ปรับความสูงได้ที่ height) */
+    .site-logo {
+      display: block;
+      height: 56px;
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
+    }
+    /* ข้อความสำรอง จะโชว์เฉพาะตอนโหลดโลโก้ไม่ได้ */
+    .site-title-text { display: none; }
+    .site-title.no-logo .site-title-text { display: inline; }
+
+    .site-tagline { margin: 8px 0 0; font-size: 15px; color: #475569; }
+    .bin-bar {
+      display: flex;
+      width: 96px;
+      height: 5px;
+      margin-top: 12px;
+      border-radius: 3px;
       overflow: hidden;
     }
-    .hero::after {
-      content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 38px;
-      background: var(--bg);
-      border-radius: 38px 38px 0 0;
-    }
-    .hero-inner { max-width: none; margin: 0 auto; position: relative; z-index: 1; }
-
-    .brand {
-      display: inline-flex; align-items: center; gap: 12px;
-      background: rgba(255,255,255,.96);
-      padding: 8px 18px 8px 12px;
-      border-radius: 16px;
-      box-shadow: 0 6px 18px rgba(0,0,0,.18);
-    }
-    .site-logo { display: block; height: 44px; width: auto; object-fit: contain; }
-    .brand-text { display: none; font-size: 26px; font-weight: 800; color: var(--brand); line-height: 1; }
-    .brand.no-logo .brand-text { display: inline; }
-
-    .hero h1 { margin: 22px 0 8px; font-size: clamp(28px, 5vw, 42px); font-weight: 800; line-height: 1.15; letter-spacing: -.3px; }
-    .hero h1 span { color: #fde68a; }
-    .hero p.sub { margin: 0; max-width: 620px; font-size: 16px; line-height: 1.7; color: rgba(255,255,255,.85); }
-    .quote {
-      margin: 18px 0 0; max-width: 640px;
-      padding: 10px 14px; border-left: 3px solid #fde68a;
-      background: rgba(255,255,255,.08); border-radius: 0 12px 12px 0;
-      font-size: 14px; line-height: 1.65; color: rgba(255,255,255,.88);
-    }
-    .bin-bar { display: flex; width: 120px; height: 6px; margin-top: 18px; border-radius: 4px; overflow: hidden; }
     .bin-bar span { flex: 1; }
-    .bin-bar .b1 { background: #66bb6a; } .bin-bar .b2 { background: #fbc02d; }
-    .bin-bar .b3 { background: #42a5f5; } .bin-bar .b4 { background: #ef5350; }
+    .bin-bar .b1 { background: #2e7d32; }
+    .bin-bar .b2 { background: #fbc02d; }
+    .bin-bar .b3 { background: #1976d2; }
+    .bin-bar .b4 { background: #d32f2f; }
 
-    /* ===== MAIN ===== */
-    .app-container { flex: 1; width: 100%; max-width: none; margin: -40px 0 0; padding: 0 18px 32px; position: relative; z-index: 2; }
-
-    .search-wrap { position: relative; margin-bottom: 16px; }
-    .search-wrap svg { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); pointer-events: none; }
-    .search-box {
-      width: 100%; padding: 17px 48px 17px 52px; font-size: 17px; font-weight: 500;
-      border: 2px solid transparent; border-radius: 18px; background: #fff; color: var(--ink);
-      box-shadow: var(--shadow-md); outline: none; transition: border-color .2s, box-shadow .2s;
-    }
-    .search-box::placeholder { color: #94a3b8; font-weight: 400; }
-    .search-box:focus { border-color: var(--brand-2); box-shadow: 0 0 0 4px rgba(46,125,50,.15), var(--shadow-md); }
-    .clear-btn {
-      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-      width: 30px; height: 30px; border: none; border-radius: 50%;
-      background: #f1f5f9; color: var(--muted); font-size: 14px; font-weight: 700; cursor: pointer; display: none;
-    }
-    .clear-btn:hover { background: #e2e8f0; }
-    .search-wrap.has-text .clear-btn { display: block; }
-
-    /* category chips */
-    .category-buttons { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 12px; margin-bottom: 6px; scrollbar-width: thin; }
-    .btn {
-      flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px;
-      padding: 10px 16px 10px 12px; border-radius: 999px; border: 1.5px solid var(--line);
-      background: #fff; color: var(--ink-2); font-size: 15px; font-weight: 700; cursor: pointer;
-      box-shadow: var(--shadow-sm); transition: transform .15s, box-shadow .15s, background .2s, color .2s, border-color .2s;
-      white-space: nowrap;
-    }
-    @media (hover: hover) { .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); } }
-    .btn .ico { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: #f1f5f9; }
-    .btn .cnt { font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: #f1f5f9; color: var(--muted); }
-
-    .btn-all .ico { background: #e2e8f0; }
-    .btn-wet .ico { background: var(--wet-tint); }
-    .btn-recycle .ico { background: var(--recycle-tint); }
-    .btn-general .ico { background: var(--general-tint); }
-    .btn-hazard .ico { background: var(--hazard-tint); }
-
-    .btn-all.active     { background: #334155; border-color: #334155; color: #fff; }
-    .btn-wet.active     { background: var(--wet); border-color: var(--wet); color: #fff; }
-    .btn-recycle.active { background: var(--recycle); border-color: var(--recycle); color: #3b2f00; }
-    .btn-general.active { background: var(--general); border-color: var(--general); color: #fff; }
-    .btn-hazard.active  { background: var(--hazard); border-color: var(--hazard); color: #fff; }
-    .btn.active .cnt { background: rgba(255,255,255,.25); color: inherit; }
-    .btn.active .ico { background: rgba(255,255,255,.9); }
-
-    /* toolbar */
-    .list-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin: 8px 2px 16px; }
-    .result-count { font-size: 15px; color: var(--muted); margin: 0; }
-    .result-count b { color: var(--brand); font-size: 18px; font-weight: 800; }
-
-    .sort-group { display: inline-flex; padding: 4px; gap: 4px; border-radius: 12px; background: #e8edf0; }
-    .sort-btn { border: none; background: transparent; color: var(--muted); font-size: 14px; font-weight: 700; padding: 7px 18px; border-radius: 9px; cursor: pointer; transition: all .2s; }
-    .sort-btn:hover:not(.active) { color: var(--ink); }
-    .sort-btn.active { background: #fff; color: var(--ink); box-shadow: var(--shadow-sm); }
-
-    /* ===== CARDS ===== */
-    .waste-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
-
-    .waste-card {
-      --c: #94a3b8; --t: #f1f5f9; --i: #334155;
-      position: relative; background: var(--card); border-radius: var(--radius);
-      padding: 18px 18px 16px; box-shadow: var(--shadow-sm); border: 1px solid #edf1f4;
-      cursor: pointer; overflow: hidden; display: flex; flex-direction: column; gap: 10px;
-      transition: transform .2s, box-shadow .2s, border-color .2s;
-      content-visibility: auto; contain-intrinsic-size: auto 150px;
-    }
-    .waste-card::before { content: ""; position: absolute; left: 0; top: 0; right: 0; height: 5px; background: var(--c); }
-    @media (hover: hover) { .waste-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--c); } }
-    .waste-card:focus-visible { outline: 3px solid var(--c); outline-offset: 2px; }
-    .waste-card.wet { --c: var(--wet); --t: var(--wet-tint); --i: var(--wet-ink); }
-    .waste-card.recycle { --c: var(--recycle); --t: var(--recycle-tint); --i: var(--recycle-ink); }
-    .waste-card.general { --c: var(--general); --t: var(--general-tint); --i: var(--general-ink); }
-    .waste-card.hazard { --c: var(--hazard); --t: var(--hazard-tint); --i: var(--hazard-ink); }
-
-    @keyframes cardIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-
-    .card-top { display: flex; align-items: flex-start; gap: 12px; }
-    .card-ico { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 14px; background: var(--t); display: grid; place-items: center; }
-    .waste-title { font-weight: 800; font-size: 18px; line-height: 1.35; color: var(--ink); word-break: break-word; }
-    .waste-type { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 13px; font-weight: 700; color: var(--i); }
-    .waste-type i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); display: inline-block; }
-
-    .decomp { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--t); border-radius: 12px; font-size: 14px; color: var(--ink-2); }
-    .decomp b { color: var(--i); font-weight: 800; }
-    .decomp span { overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
-
-    .card-foot { display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--muted); margin-top: auto; }
-    .card-foot .go { color: var(--i); display: inline-flex; align-items: center; gap: 4px; transition: gap .2s; }
-    .waste-card:hover .card-foot .go { gap: 8px; }
-
-    /* จอใหญ่: การ์ดขนาดคงที่ 190px จำนวนต่อแถวเปลี่ยนไปตามความกว้างหน้าต่าง */
-    @media (min-width: 561px) {
-      .waste-grid { grid-template-columns: repeat(auto-fill, 190px); justify-content: start; gap: 14px; }
-      .waste-card { padding: 16px 14px 14px; }
-      .card-top { flex-direction: column; gap: 10px; }
-      .waste-title { font-size: 16px; }
-      .decomp { flex-direction: column; align-items: flex-start; gap: 2px; font-size: 13px; }
-      .card-foot .go-text { display: none; }
+    .search-box { 
+      width: 100%; 
+      padding: 12px 16px; 
+      font-size: 16px; 
+      border: 2px solid #2e7d32; 
+      border-radius: 12px; 
+      margin-bottom: 15px; 
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
     }
 
-    /* skeleton */
-    #loading { display: none; }
-    .skeleton { height: 150px; border-radius: var(--radius); background: linear-gradient(90deg, #e9eef1 25%, #f4f7f8 37%, #e9eef1 63%); background-size: 400% 100%; animation: shimmer 1.3s infinite; }
-    @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
-    .load-msg { text-align: center; color: var(--muted); font-size: 15px; margin: 4px 0 16px; }
+    .category-buttons { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 8px; 
+      margin-bottom: 20px; 
+      width: 100%;
+    }
 
-    .demo-banner { display: none; margin-bottom: 14px; padding: 10px 14px; border-radius: 12px; background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; font-size: 14px; font-weight: 600; }
+    .btn { 
+      width: 100%; 
+      padding: 10px; 
+      border: 1px solid transparent; 
+      border-radius: 10px; 
+      font-weight: 600; 
+      cursor: pointer; 
+      font-size: 15px;
+      transition: all 0.2s ease; 
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
 
-    .not-found-box { grid-column: 1 / -1; text-align: center; padding: 56px 20px; background: #fff; border-radius: 20px; box-shadow: var(--shadow-sm); border: 1px dashed #cbd5e1; }
-    .not-found-icon { font-size: 48px; margin-bottom: 8px; }
-    .not-found-text { font-size: 19px; font-weight: 700; color: var(--ink-2); }
-    .not-found-sub { font-size: 14px; color: var(--muted); margin-top: 4px; }
+    .btn-all { background-color: #e2e8f0; color: #475569; border-color: #cbd5e1; }
+    .btn-wet { background-color: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+    .btn-recycle { background-color: #fff8e1; color: #b78103; border-color: #ffe082; }
+    .btn-general { background-color: #e3f2fd; color: #1565c0; border-color: #90caf9; }
+    .btn-hazard { background-color: #ffebee; color: #c62828; border-color: #ef9a9a; }
 
-    /* ===== FOOTER ===== */
-    .site-footer { padding: 26px 18px 30px; text-align: center; background: #14321a; color: rgba(255,255,255,.7); font-size: 13px; line-height: 1.8; }
-    .site-footer .credit-label { font-size: 12px; letter-spacing: .5px; opacity: .75; }
-    .site-footer .credit-name { font-weight: 800; color: #fff; font-size: 16px; margin: 2px 0; }
+    .btn-all.active { background-color: #334155; color: #ffffff; border-color: #334155; }
+    .btn-wet.active { background-color: #2e7d32; color: #ffffff; border-color: #2e7d32; }
+    .btn-recycle.active { background-color: #fbc02d; color: #212121; border-color: #fbc02d; }
+    .btn-general.active { background-color: #1976d2; color: #ffffff; border-color: #1976d2; }
+    .btn-hazard.active { background-color: #d32f2f; color: #ffffff; border-color: #d32f2f; }
+    
+    .waste-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+      gap: 14px; 
+      width: 100%;
+    }
+    
+    .waste-card { 
+      background: white; 
+      padding: 16px; 
+      border-radius: 12px; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06); 
+      border-left: 6px solid #ccc; 
+      cursor: pointer; 
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .waste-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
+    .wet { border-left-color: #2e7d32; }
+    .recycle { border-left-color: #fbc02d; }
+    .general { border-left-color: #1976d2; }
+    .hazard { border-left-color: #d32f2f; }
+    
+    .waste-title { font-weight: 700; font-size: 19px; margin-bottom: 6px; color: #1e293b; }
+    .waste-type { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+    .type-wet { color: #2e7d32; }
+    .type-recycle { color: #b78103; }
+    .type-general { color: #1976d2; }
+    .type-hazard { color: #c62828; }
+    .waste-detail { font-size: 14px; color: #475569; margin-top: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-    /* ===== MODAL ===== */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.5); z-index: 99999; justify-content: center; align-items: center; padding: 16px; }
-    .modal-overlay.show { display: flex; animation: fadeIn .2s ease; }
+    /* แถบจำนวนรายการ + ปุ่มเรียงลำดับ */
+    .list-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0 2px 12px;
+    }
+    .result-count { font-size: 14px; color: #475569; margin: 0; }
+    .result-count b { color: #1b5e20; font-size: 16px; }
+
+    .sort-group {
+      display: inline-flex;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .sort-btn {
+      border: none;
+      background: #fff;
+      color: #475569;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 7px 16px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .sort-btn + .sort-btn { border-left: 1.5px solid #cbd5e1; }
+    .sort-btn:hover:not(.active) { background: #f1f5f9; }
+    .sort-btn.active { background: #334155; color: #fff; }
+    
+    #loading { text-align: center; font-size: 16px; color: #666; margin: 25px; }
+
+    .not-found-box {
+      grid-column: 1 / -1; text-align: center; padding: 40px 20px;
+      background: white; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .not-found-icon { font-size: 45px; color: #94a3b8; margin-bottom: 10px; }
+    .not-found-text { font-size: 18px; font-weight: 600; color: #64748b; }
+
+    .site-footer {
+      padding: 18px 18px 22px;
+      text-align: center;
+      border-top: 1px solid #e2e8f0;
+      background: #eef1f4;
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    .site-footer .credit-label { font-size: 12px; }
+    .site-footer .credit-name { font-weight: 700; color: #334155; font-size: 14px; }
+
+    /* ===== ป๊อปอัปรายละเอียด ===== */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%; background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      z-index: 99999; justify-content: center; align-items: center; padding: 16px;
+    }
+    .modal-overlay.show { display: flex; animation: fadeIn 0.2s ease; }
+
     .modal-card {
-      --fill: #94a3b8; --accent: #334155; --tint: #f1f5f9; --onfill: #fff;
-      background: #fff; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto;
-      border-radius: 26px; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,.3);
-      animation: slideUp .3s cubic-bezier(.22,1,.36,1);
+      --fill: #94a3b8; --accent: #334155; --tint: #f1f5f9; --onfill: #ffffff;
+      background: #fff; width: 100%; max-width: 440px; max-height: 88vh;
+      overflow-y: auto; border-radius: 22px; position: relative;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      animation: slideUp 0.28s cubic-bezier(0.22, 1, 0.36, 1);
     }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slideUp { from { transform: translateY(30px) scale(.97); opacity: 0; } to { transform: none; opacity: 1; } }
 
-    .close-btn { position: absolute; top: 14px; right: 14px; z-index: 1; width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(255,255,255,.9); color: var(--muted); font-size: 16px; font-weight: 700; cursor: pointer; display: grid; place-items: center; transition: transform .2s, background .2s; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp {
+      from { transform: translateY(30px) scale(0.97); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .close-btn {
+      position: absolute; top: 12px; right: 12px; z-index: 1;
+      width: 36px; height: 36px; border-radius: 50%; border: none;
+      background: rgba(255,255,255,0.85); color: #475569;
+      font-size: 17px; font-weight: bold; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, transform 0.2s;
+    }
     .close-btn:hover { background: #fff; transform: rotate(90deg); }
 
-    .modal-head { background: linear-gradient(180deg, var(--tint), #fff); padding: 34px 22px 18px; text-align: center; border-radius: 26px 26px 0 0; }
-    .modal-icon { width: 68px; height: 68px; margin: 0 auto 14px; border-radius: 22px; background: var(--fill); display: grid; place-items: center; box-shadow: 0 10px 22px rgba(0,0,0,.18); transform: rotate(-4deg); }
-    .modal-title { font-size: 25px; font-weight: 800; line-height: 1.3; color: var(--ink); margin-bottom: 10px; padding: 0 12px; word-break: break-word; }
-    .modal-badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 14px; border-radius: 999px; background: #fff; color: var(--accent); border: 1.5px solid var(--fill); font-size: 14px; font-weight: 700; }
+    .modal-head {
+      background: var(--tint);
+      border-bottom: 4px solid var(--fill);
+      padding: 28px 22px 20px;
+      text-align: center;
+    }
+    .modal-icon {
+      width: 58px; height: 58px; margin: 0 auto 12px; border-radius: 50%;
+      background: var(--fill);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    .modal-title {
+      font-size: 24px; font-weight: 800; line-height: 1.3;
+      color: #1e293b; margin-bottom: 10px; padding: 0 16px;
+    }
+    .modal-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 5px 14px; border-radius: 999px;
+      background: #fff; color: var(--accent);
+      border: 1.5px solid var(--fill);
+      font-size: 14px; font-weight: 700;
+    }
     .modal-badge .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--fill); }
 
-    .modal-body { padding: 8px 20px 22px; }
-    .bin-tip { display: flex; align-items: center; justify-content: center; gap: 10px; background: var(--fill); color: var(--onfill); border-radius: 16px; padding: 14px; margin-bottom: 18px; font-size: 18px; font-weight: 800; box-shadow: 0 6px 14px rgba(0,0,0,.12); }
+    .modal-body { padding: 18px 20px 20px; }
 
-    .info-block { margin-bottom: 16px; }
-    .info-label { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 800; color: var(--muted); margin-bottom: 6px; letter-spacing: .3px; }
-    .info-time { font-size: 22px; font-weight: 800; color: var(--accent); line-height: 1.3; padding: 10px 14px; background: var(--tint); border-radius: 14px; }
-    .info-text { font-size: 16px; line-height: 1.8; color: var(--ink-2); background: #f8fafc; border: 1px solid var(--line); border-radius: 14px; padding: 13px 15px; white-space: pre-line; }
-
-    .modal-close-full { width: 100%; margin-top: 4px; padding: 13px; border: none; border-radius: 14px; background: #eef2f5; color: var(--ink-2); font-size: 16px; font-weight: 700; cursor: pointer; transition: background .2s; }
-    .modal-close-full:hover { background: #e2e8f0; }
-
-    @media (max-width: 560px) {
-      .hero { padding: 20px 16px 66px; }
-      .app-container { padding: 0 14px 28px; }
-      .waste-grid { grid-template-columns: 1fr; gap: 12px; }
-      .search-box { font-size: 16px; padding: 15px 46px 15px 48px; }
+    .bin-tip {
+      background: var(--fill); color: var(--onfill);
+      border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;
+      text-align: center; font-size: 17px; font-weight: 800;
     }
+
+    .info-block { margin-bottom: 14px; }
+    .info-label { font-size: 13px; font-weight: 700; color: #64748b; margin-bottom: 4px; }
+    .info-time { font-size: 22px; font-weight: 800; color: var(--accent); line-height: 1.3; }
+    .info-text {
+      font-size: 16px; line-height: 1.75; color: #334155;
+      background: #f8fafc; border: 1px solid #e2e8f0;
+      border-radius: 12px; padding: 12px 14px;
+      white-space: pre-line;
+    }
+
+    .modal-close-full {
+      width: 100%; margin-top: 4px; padding: 12px; border: none; border-radius: 12px;
+      background: #e2e8f0; color: #334155; font-size: 16px; font-weight: 700; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .modal-close-full:hover { background: #cbd5e1; }
+
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
     }
   </style>
 </head>
 <body>
 
-  <header class="hero">
-    <div class="hero-inner">
-      <div class="brand" id="brand">
+  <div class="app-container">
+    <header class="site-header">
+      <h1 class="site-title">
         <img src="logo.png" alt="ThingD (ทิ้งดี)" class="site-logo"
-             onerror="document.getElementById('brand').classList.add('no-logo'); this.remove();">
-        <span class="brand-text">ThingD</span>
+             onerror="this.parentNode.classList.add('no-logo'); this.remove();">
+        <span class="site-title-text">ThingD (ทิ้งดี)</span>
+      </h1>
+      <p class="site-tagline">ไม่มีคำว่า 'ทิ้งไป' อย่างแท้จริง เมื่อเราทิ้งอะไรไป มันก็ต้องไปอยู่ที่ใดที่หนึ่งเสมอ... - Annie Leonard</p>
+      <div class="bin-bar" aria-hidden="true">
+        <span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span>
       </div>
-      <h1>ทิ้งให้ถูกถัง <span>ทิ้งให้ดี</span></h1>
-      <div class="quote">ไม่มีคำว่า 'ทิ้งไป' อย่างแท้จริง เมื่อเราทิ้งอะไรไป มันก็ต้องไปอยู่ที่ใดที่หนึ่งเสมอ... - Annie Leonard</div>
-      <div class="bin-bar" aria-hidden="true"><span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span></div>
-    </div>
-  </header>
+    </header>
 
-  <main class="app-container">
-    <div class="search-wrap" id="searchWrap">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-      <input type="text" id="searchInput" class="search-box" oninput="filterWaste()" placeholder="พิมพ์ชื่อขยะที่ต้องการค้นหา..." autocomplete="off">
-      <button class="clear-btn" onclick="clearSearch()" aria-label="ล้างคำค้นหา">✕</button>
-    </div>
+    <input type="text" id="searchInput" class="search-box" onkeyup="filterWaste()" placeholder="พิมพ์ชื่อขยะที่ต้องการค้นหา...">
 
-    <div class="category-buttons" id="categoryButtons">
-      <button class="btn btn-all active" onclick="filterCategory('all', this)">
-        <span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>
-        ทั้งหมด <span class="cnt" data-cnt="all">0</span>
-      </button>
-      <button class="btn btn-wet" onclick="filterCategory('wet', this)">
-        <span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5-14 14-14 0 9-6 14-14 14z"/><path d="M5 19c3-4 6-7 9-9"/></svg></span>
-        ขยะเปียก <span class="cnt" data-cnt="wet">0</span>
-      </button>
-      <button class="btn btn-recycle" onclick="filterCategory('recycle', this)">
-        <span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b78103" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.5 6.2M3 12A9 9 0 0 1 18.5 5.8"/><path d="M18.5 2v4h-4M5.5 22v-4h4"/></svg></span>
-        รีไซเคิล <span class="cnt" data-cnt="recycle">0</span>
-      </button>
-      <button class="btn btn-general" onclick="filterCategory('general', this)">
-        <span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565c0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></span>
-        ขยะทั่วไป <span class="cnt" data-cnt="general">0</span>
-      </button>
-      <button class="btn btn-hazard" onclick="filterCategory('hazard', this)">
-        <span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c62828" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v4M12 17.5v.5"/></svg></span>
-        ขยะอันตราย <span class="cnt" data-cnt="hazard">0</span>
-      </button>
+    <div class="category-buttons">
+      <button class="btn btn-all active" onclick="filterCategory('all', this)">ทั้งหมด</button>
+      <button class="btn btn-wet" onclick="filterCategory('wet', this)">ขยะเปียก</button>
+      <button class="btn btn-recycle" onclick="filterCategory('recycle', this)">ขยะรีไซเคิล</button>
+      <button class="btn btn-general" onclick="filterCategory('general', this)">ขยะทั่วไป</button>
+      <button class="btn btn-hazard" onclick="filterCategory('hazard', this)">ขยะอันตราย</button>
     </div>
 
     <div class="list-toolbar">
       <div class="result-count" id="resultCount"></div>
       <div class="sort-group" role="group" aria-label="เรียงลำดับ">
-        <button class="sort-btn active" id="sortAsc" onclick="setSort('asc')" aria-pressed="true">ก → ฮ</button>
-        <button class="sort-btn" id="sortDesc" onclick="setSort('desc')" aria-pressed="false">ฮ → ก</button>
+        <button class="sort-btn active" id="sortAsc" onclick="setSort('asc')" aria-pressed="true">ก-ฮ</button>
+        <button class="sort-btn" id="sortDesc" onclick="setSort('desc')" aria-pressed="false">ฮ-ก</button>
       </div>
     </div>
 
-    <div class="demo-banner" id="demoBanner">⚠️ โหมดตัวอย่าง: ยังโหลดข้อมูลจาก Google Sheets ไม่ได้ จึงแสดงข้อมูลสาธิตแทน</div>
-
-    <div id="loading">
-      <div class="load-msg">กำลังโหลดข้อมูลจาก Google Sheets...</div>
-      <div class="waste-grid">
-        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
-      </div>
-    </div>
+    <div id="loading">กำลังโหลดข้อมูลจาก Google Sheets...</div>
     <div class="waste-grid" id="wasteList"></div>
-  </main>
+  </div>
 
   <footer class="site-footer">
     <div class="credit-label">พัฒนาระบบโดย</div>
-    <div class="credit-name">กลุ่มนักเรียนชั้นมัธยมศึกษาปีที่ 3/3</div>
+    <div class="credit-name">กลุ่มนักเรียนชั้นมัธยมศึกษาปีที่ 3/3 </div>
     <div>โครงการวิชาวิทยาศาสตร์พลังสิบ โรงเรียนเทพศิรินทร์ สมุทรปราการ</div>
   </footer>
 
   <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
     <div class="modal-card" id="modalCard" role="dialog" aria-modal="true" aria-labelledby="mTitle">
       <button class="close-btn" onclick="closeModalDirect()" aria-label="ปิด">✕</button>
+
       <div class="modal-head">
-        <div class="modal-icon" id="mIcon"></div>
+        <div class="modal-icon">
+          <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/><path d="M10 11v5M14 11v5"/>
+          </svg>
+        </div>
         <div class="modal-title" id="mTitle">ชื่อขยะ</div>
         <div class="modal-badge"><span class="dot"></span><span id="mType">ประเภทขยะ</span></div>
       </div>
+
       <div class="modal-body">
         <div class="bin-tip" id="mBin">ทิ้งที่ถังสีเขียว</div>
+
         <div class="info-block">
-          <div class="info-label">⏳ ระยะเวลาย่อยสลาย</div>
+          <div class="info-label">ระยะเวลาย่อยสลาย</div>
           <div class="info-time" id="mTime">-</div>
         </div>
+
         <div class="info-block">
-          <div class="info-label">📋 รายละเอียด</div>
+          <div class="info-label">รายละเอียด</div>
           <div class="info-text" id="mDetail">-</div>
         </div>
+
         <button class="modal-close-full" onclick="closeModalDirect()">ปิด</button>
       </div>
     </div>
   </div>
 
   <script>
-    const SHEET_ID = '16acyhxmrM-kBQonV11HHiIbZaJ9_oPf7xg0VqzeoV9Q';
+    const SHEET_ID = '16acyhxmrM-kBQonV11HHiIbZaJ9_oPf7xg0VqzeoV9Q'; 
     const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&headers=1`;
-
-    // ตั้งเป็น false ก่อนนำขึ้นเว็บจริง เพื่อไม่ให้แสดงข้อมูลสาธิตเมื่อโหลดชีตไม่ได้
-    const ALLOW_DEMO_FALLBACK = true;
 
     let allWasteData = [];
     let currentCategory = 'all';
-    let currentSort = 'asc';
+    let currentSort = 'asc'; // asc = ก-ฮ, desc = ฮ-ก
 
     const TYPE_STYLE = {
-      wet:     { fill: '#2e7d32', accent: '#1b5e20', tint: '#e8f5e9', on: '#ffffff', bin: 'ถังสีเขียว' },
-      recycle: { fill: '#fbc02d', accent: '#8a6100', tint: '#fff8e1', on: '#212121', bin: 'ถังสีเหลือง' },
-      general: { fill: '#1976d2', accent: '#0d47a1', tint: '#e3f2fd', on: '#ffffff', bin: 'ถังสีน้ำเงิน' },
-      hazard:  { fill: '#d32f2f', accent: '#b71c1c', tint: '#ffebee', on: '#ffffff', bin: 'ถังสีแดง' }
+      wet:     { fill: '#2e7d32', accent: '#2e7d32', tint: '#e8f5e9', on: '#ffffff', bin: ' "ถังสีเขียว"' },
+      recycle: { fill: '#fbc02d', accent: '#8a6100', tint: '#fff8e1', on: '#212121', bin: ' "ถังสีเหลือง"' },
+      general: { fill: '#1976d2', accent: '#1565c0', tint: '#e3f2fd', on: '#ffffff', bin: ' "ถังสีน้ำเงิน"' },
+      hazard:  { fill: '#d32f2f', accent: '#c62828', tint: '#ffebee', on: '#ffffff', bin: ' "ถังสีแดง"' }
     };
 
-    const TYPE_ICON = (color, size) => ({
-      wet:     `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5-14 14-14 0 9-6 14-14 14z"/><path d="M5 19c3-4 6-7 9-9"/></svg>`,
-      recycle: `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.5 6.2M3 12A9 9 0 0 1 18.5 5.8"/><path d="M18.5 2v4h-4M5.5 22v-4h4"/></svg>`,
-      general: `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/><path d="M10 11v5M14 11v5"/></svg>`,
-      hazard:  `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v4M12 17.5v.5"/></svg>`
-    });
-
-    const DEMO_DATA = [
-      { name: 'เศษอาหาร', time: '1–2 สัปดาห์', detail: 'เศษข้าว ผัก ผลไม้ สามารถนำไปทำปุ๋ยหมักได้\nควรสะเด็ดน้ำก่อนทิ้ง', type: 'wet', typeName: 'ขยะเปียก' },
-      { name: 'เปลือกผลไม้', time: '2–4 สัปดาห์', detail: 'ย่อยสลายง่าย นำไปหมักทำน้ำหมักชีวภาพได้', type: 'wet', typeName: 'ขยะเปียก' },
-      { name: 'ใบไม้แห้ง', time: '1–3 เดือน', detail: 'นำไปคลุมดินหรือทำปุ๋ยหมักได้', type: 'wet', typeName: 'ขยะเปียก' },
-      { name: 'ขวดพลาสติก PET', time: '450 ปี', detail: 'ล้างให้สะอาด ถอดฉลากและฝา แล้วบีบให้แบนก่อนทิ้ง', type: 'recycle', typeName: 'ขยะรีไซเคิล' },
-      { name: 'กระดาษ', time: '2–6 สัปดาห์', detail: 'แยกกระดาษที่สะอาดและแห้ง ไม่เปื้อนอาหาร', type: 'recycle', typeName: 'ขยะรีไซเคิล' },
-      { name: 'กระป๋องอะลูมิเนียม', time: '200–500 ปี', detail: 'ล้างให้สะอาด บีบให้แบน ขายต่อได้ราคาดี', type: 'recycle', typeName: 'ขยะรีไซเคิล' },
-      { name: 'ขวดแก้ว', time: '1,000,000 ปี', detail: 'ล้างให้สะอาด ระวังแตก แยกฝาออกก่อนทิ้ง', type: 'recycle', typeName: 'ขยะรีไซเคิล' },
-      { name: 'ถุงขนมเปื้อนอาหาร', time: '20–30 ปี', detail: 'ถุงฟอยล์ที่รีไซเคิลยาก ทิ้งรวมกับขยะทั่วไป', type: 'general', typeName: 'ขยะทั่วไป' },
-      { name: 'โฟมใส่อาหาร', time: 'ไม่ย่อยสลาย', detail: 'ควรลดการใช้ เปลี่ยนเป็นกล่องกระดาษหรือภาชนะใช้ซ้ำ', type: 'general', typeName: 'ขยะทั่วไป' },
-      { name: 'ทิชชู่ใช้แล้ว', time: '2–4 สัปดาห์', detail: 'ห่อให้มิดชิดก่อนทิ้งเพื่อความสะอาด', type: 'general', typeName: 'ขยะทั่วไป' },
-      { name: 'ถ่านไฟฉาย', time: '100 ปีขึ้นไป', detail: 'มีโลหะหนัก ห้ามทิ้งปนกับขยะอื่น\nนำไปทิ้งที่จุดรับขยะอันตรายของชุมชน', type: 'hazard', typeName: 'ขยะอันตราย' },
-      { name: 'หลอดไฟ', time: 'ไม่ย่อยสลาย', detail: 'หลอดไฟเก่าอาจมีสารปรอท ห่อด้วยกระดาษแล้วนำไปจุดรับขยะอันตราย', type: 'hazard', typeName: 'ขยะอันตราย' },
-      { name: 'กระป๋องสเปรย์', time: 'ไม่ย่อยสลาย', detail: 'ห้ามเผาหรือเจาะ เสี่ยงระเบิด ต้องใช้ให้หมดก่อนทิ้ง', type: 'hazard', typeName: 'ขยะอันตราย' }
-    ];
-
-    function esc(v) {
-      return String(v).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
-    }
-
-    function sortData() {
-      allWasteData.sort((a, b) => String(a.name).localeCompare(String(b.name), 'th'));
-      allWasteData.forEach(it => { it._q = (String(it.name) + ' ' + String(it.detail)).toLowerCase(); });
-      updateCounts();
-    }
-
     async function fetchSheetData() {
-      const loading = document.getElementById('loading');
-      loading.style.display = 'block';
       try {
         const response = await fetch(SHEET_URL);
         const text = await response.text();
-        const jsonData = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1));
+        const jsonData = JSON.parse(text.substring(47, text.length - 2));
         const rows = jsonData.table.rows;
 
         allWasteData = [];
-        rows.forEach(row => {
+
+        rows.forEach((row, index) => {
+      
           const c = row.c;
-          if (c[0] && c[0].v)   allWasteData.push({ name: c[0].v,  time: c[1]  ? c[1].v  : '-', detail: c[2]  ? c[2].v  : '-', type: 'wet',     typeName: 'ขยะเปียก' });
-          if (c[4] && c[4].v)   allWasteData.push({ name: c[4].v,  time: c[5]  ? c[5].v  : '-', detail: c[6]  ? c[6].v  : '-', type: 'recycle', typeName: 'ขยะรีไซเคิล' });
-          if (c[8] && c[8].v)   allWasteData.push({ name: c[8].v,  time: c[9]  ? c[9].v  : '-', detail: c[10] ? c[10].v : '-', type: 'general', typeName: 'ขยะทั่วไป' });
-          if (c[12] && c[12].v) allWasteData.push({ name: c[12].v, time: c[13] ? c[13].v : '-', detail: c[14] ? c[14].v : '-', type: 'hazard',  typeName: 'ขยะอันตราย' });
+          
+          if (c[0] && c[0].v) {
+            allWasteData.push({ name: c[0].v, time: c[1] ? c[1].v : '-', detail: c[2] ? c[2].v : '-', type: 'wet', typeName: 'ขยะเปียก' });
+          }
+          if (c[4] && c[4].v) {
+            allWasteData.push({ name: c[4].v, time: c[5] ? c[5].v : '-', detail: c[6] ? c[6].v : '-', type: 'recycle', typeName: 'ขยะรีไซเคิล' });
+          }
+          if (c[8] && c[8].v) {
+            allWasteData.push({ name: c[8].v, time: c[9] ? c[9].v : '-', detail: c[10] ? c[10].v : '-', type: 'general', typeName: 'ขยะทั่วไป' });
+          }
+          if (c[12] && c[12].v) {
+            allWasteData.push({ name: c[12].v, time: c[13] ? c[13].v : '-', detail: c[14] ? c[14].v : '-', type: 'hazard', typeName: 'ขยะอันตราย' });
+          }
         });
 
-        if (allWasteData.length === 0) throw new Error('empty');
-        sortData();
-        loading.style.display = 'none';
+        // เรียงตามพจนานุกรมไทย ก-ฮ เป็นค่าตั้งต้น
+        allWasteData.sort((a, b) => String(a.name).localeCompare(String(b.name), 'th'));
+
+        document.getElementById('loading').style.display = 'none';
         renderCards();
       } catch (error) {
-        if (ALLOW_DEMO_FALLBACK) {
-          allWasteData = DEMO_DATA.slice();
-          sortData();
-          loading.style.display = 'none';
-          document.getElementById('demoBanner').style.display = 'block';
-          renderCards();
-        } else {
-          loading.innerHTML = '<div class="load-msg">ไม่สามารถโหลดข้อมูลได้ ตรวจสอบการตั้งค่าแชร์ไฟล์ Google Sheets</div>';
-        }
+        document.getElementById('loading').innerText = 'ไม่สามารถโหลดข้อมูลได้ ตรวจสอบการตั้งค่าแชร์ไฟล์ Google Sheets';
       }
     }
-
-    function updateCounts() {
-      const counts = { all: allWasteData.length, wet: 0, recycle: 0, general: 0, hazard: 0 };
-      allWasteData.forEach(i => counts[i.type]++);
-      document.querySelectorAll('[data-cnt]').forEach(el => { el.textContent = counts[el.dataset.cnt]; });
-    }
-
-    const CARD_ICON = {};
-    Object.keys(TYPE_STYLE).forEach(k => { CARD_ICON[k] = TYPE_ICON(TYPE_STYLE[k].accent, 24)[k]; });
-    const ARROW = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-    let visibleItems = [];
 
     function renderCards() {
       const listContainer = document.getElementById('wasteList');
       const searchKeyword = document.getElementById('searchInput').value.toLowerCase();
-      document.getElementById('searchWrap').classList.toggle('has-text', searchKeyword !== '');
+      listContainer.innerHTML = '';
 
-      const list = currentSort === 'desc' ? allWasteData.slice().reverse() : allWasteData;
-      visibleItems = list.filter(it =>
-        (currentCategory === 'all' || it.type === currentCategory) &&
-        (searchKeyword === '' || it._q.includes(searchKeyword))
-      );
+      let matchCount = 0;
 
-      const html = visibleItems.map((item, i) => {
-        const s = TYPE_STYLE[item.type];
-        return `<div class="waste-card ${item.type}" data-i="${i}" tabindex="0" role="button">
-          <div class="card-top">
-            <div class="card-ico">${CARD_ICON[item.type]}</div>
-            <div>
-              <div class="waste-title">${esc(item.name)}</div>
-              <div class="waste-type"><i></i>${esc(item.typeName)}</div>
-            </div>
-          </div>
-          <div class="decomp"><b>⏳ ย่อยสลาย</b><span>${esc(item.time)}</span></div>
-          <div class="card-foot"><span>${s.bin}</span><span class="go"><span class="go-text">ดูรายละเอียด</span> ${ARROW}</span></div>
-        </div>`;
-      }).join('');
+      // ฮ-ก = กลับลำดับจากรายการที่เรียง ก-ฮ ไว้แล้ว
+      const list = currentSort === 'desc' ? [...allWasteData].reverse() : allWasteData;
 
-      listContainer.innerHTML = html || `
-        <div class="not-found-box">
-          <div class="not-found-icon">🔎</div>
-          <div class="not-found-text">ไม่พบนะ! ลองหาใหม่ดูน้าา!</div>
-          <div class="not-found-sub">ลองใช้คำอื่น หรือเลือกหมวด “ทั้งหมด”</div>
-        </div>`;
+      list.forEach(item => {
+        const matchesSearch = String(item.name).toLowerCase().includes(searchKeyword) || String(item.detail).toLowerCase().includes(searchKeyword);
+        const matchesCategory = (currentCategory === 'all' || item.type === currentCategory);
+
+        if (matchesSearch && matchesCategory) {
+          matchCount++;
+          const card = document.createElement('div');
+          card.className = `waste-card ${item.type}`;
+          card.innerHTML = `
+            <div class="waste-title">${item.name}</div>
+            <div class="waste-type type-${item.type}">${item.typeName}</div>
+            <div class="waste-detail"><b>ย่อยสลาย:</b> ${item.time}</div>
+            <div style="font-size: 13px; color: #2e7d32; margin-top: 8px; font-weight: bold;">กดเพื่อดูรายละเอียดเต็ม</div>
+          `;
+          card.onclick = () => openModal(item);
+          listContainer.appendChild(card);
+        }
+      });
 
       const total = allWasteData.length;
       const isFiltered = searchKeyword.trim() !== '' || currentCategory !== 'all';
       document.getElementById('resultCount').innerHTML = isFiltered
-        ? `พบ <b>${visibleItems.length}</b> จากทั้งหมด <b>${total}</b> รายการ`
+        ? `พบ <b>${matchCount}</b> จากทั้งหมด <b>${total}</b> รายการ`
         : `รายการขยะทั้งหมด <b>${total}</b> รายการ`;
-    }
 
-    // ใช้ event delegation แทนการผูก onclick ทีละการ์ด
-    (function () {
-      const el = document.getElementById('wasteList');
-      el.addEventListener('click', e => {
-        const c = e.target.closest('.waste-card');
-        if (c) openModal(visibleItems[+c.dataset.i]);
-      });
-      el.addEventListener('keydown', e => {
-        if (e.key !== 'Enter' && e.key !== ' ') return;
-        const c = e.target.closest('.waste-card');
-        if (c) { e.preventDefault(); openModal(visibleItems[+c.dataset.i]); }
-      });
-    })();
+      if (matchCount === 0) {
+        listContainer.innerHTML = `
+          <div class="not-found-box">
+            <div class="not-found-icon">🔎❓</div>
+            <div class="not-found-text">ไม่พบนะ! ลองหาใหม่ดูน้าา!</div>
+          </div>
+        `;
+      }
+    }
 
     function hasText(v) {
       return v !== null && v !== undefined && String(v).trim() !== '' && String(v).trim() !== '-';
@@ -502,10 +480,9 @@
       card.style.setProperty('--tint', s.tint);
       card.style.setProperty('--onfill', s.on);
 
-      document.getElementById('mIcon').innerHTML = TYPE_ICON(s.on, 34)[item.type];
       document.getElementById('mTitle').textContent = item.name;
       document.getElementById('mType').textContent = item.typeName;
-      document.getElementById('mBin').textContent = '🗑️ ทิ้งที่' + s.bin;
+      document.getElementById('mBin').textContent = 'ทิ้งที่' + s.bin;
       document.getElementById('mTime').textContent = hasText(item.time) ? item.time : 'ไม่มีข้อมูล';
       document.getElementById('mDetail').textContent = hasText(item.detail) ? item.detail : 'ยังไม่มีรายละเอียดเพิ่มเติม';
 
@@ -514,19 +491,20 @@
       document.body.style.overflow = 'hidden';
     }
 
-    function closeModal(event) { if (event.target.id === 'modalOverlay') closeModalDirect(); }
+    function closeModal(event) {
+      if (event.target.id === 'modalOverlay') closeModalDirect();
+    }
+
     function closeModalDirect() {
       document.getElementById('modalOverlay').classList.remove('show');
       document.body.style.overflow = '';
     }
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalDirect(); });
 
-    let searchTimer;
-    function filterWaste() { clearTimeout(searchTimer); searchTimer = setTimeout(renderCards, 120); }
-    function clearSearch() {
-      const input = document.getElementById('searchInput');
-      input.value = ''; input.focus(); renderCards();
-    }
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeModalDirect();
+    });
+
+    function filterWaste() { renderCards(); }
 
     function setSort(dir) {
       currentSort = dir;
@@ -538,12 +516,13 @@
       desc.setAttribute('aria-pressed', dir === 'desc');
       renderCards();
     }
-
-    function filterCategory(cat, btnElement) {
-      currentCategory = cat;
-      document.querySelectorAll('.category-buttons .btn').forEach(btn => btn.classList.remove('active'));
-      if (btnElement) btnElement.classList.add('active');
-      renderCards();
+    
+    function filterCategory(cat, btnElement) { 
+      currentCategory = cat; 
+      const buttons = document.querySelectorAll('.category-buttons .btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      if(btnElement) btnElement.classList.add('active');
+      renderCards(); 
     }
 
     fetchSheetData();
