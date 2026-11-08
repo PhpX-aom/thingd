@@ -6,7 +6,7 @@
   <title>ThingD (ทิ้งดี)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -29,7 +29,8 @@
       --shadow-md: 0 8px 24px rgba(15,23,42,.10);
     }
 
-    *, *::before, *::after { font-family: 'Sarabun', sans-serif; box-sizing: border-box; }
+    *, *::before, *::after { font-family: 'Sarabun', sans-serif; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    button, .waste-card { touch-action: manipulation; }
 
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -47,7 +48,7 @@
         radial-gradient(circle at 90% 90%, rgba(251,192,45,.25) 0, transparent 40%),
         linear-gradient(135deg, #14532d 0%, #1b5e20 45%, #2e7d32 100%);
       color: #fff;
-      padding: 28px 20px 74px;
+      padding: 28px 18px 74px;
       overflow: hidden;
     }
     .hero::after {
@@ -55,7 +56,7 @@
       background: var(--bg);
       border-radius: 38px 38px 0 0;
     }
-    .hero-inner { max-width: 1180px; margin: 0 auto; position: relative; z-index: 1; }
+    .hero-inner { max-width: 1500px; margin: 0 auto; position: relative; z-index: 1; }
 
     .brand {
       display: inline-flex; align-items: center; gap: 12px;
@@ -83,7 +84,7 @@
     .bin-bar .b3 { background: #42a5f5; } .bin-bar .b4 { background: #ef5350; }
 
     /* ===== MAIN ===== */
-    .app-container { flex: 1; width: 100%; max-width: 1180px; margin: -40px auto 0; padding: 0 18px 32px; position: relative; z-index: 2; }
+    .app-container { flex: 1; width: 100%; max-width: 1500px; margin: -40px auto 0; padding: 0 18px 32px; position: relative; z-index: 2; }
 
     .search-wrap { position: relative; margin-bottom: 16px; }
     .search-wrap svg { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); pointer-events: none; }
@@ -111,7 +112,7 @@
       box-shadow: var(--shadow-sm); transition: transform .15s, box-shadow .15s, background .2s, color .2s, border-color .2s;
       white-space: nowrap;
     }
-    .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    @media (hover: hover) { .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); } }
     .btn .ico { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: #f1f5f9; }
     .btn .cnt { font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: #f1f5f9; color: var(--muted); }
 
@@ -140,7 +141,7 @@
     .sort-btn.active { background: #fff; color: var(--ink); box-shadow: var(--shadow-sm); }
 
     /* ===== CARDS ===== */
-    .waste-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+    .waste-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
 
     .waste-card {
       --c: #94a3b8; --t: #f1f5f9; --i: #334155;
@@ -148,10 +149,10 @@
       padding: 18px 18px 16px; box-shadow: var(--shadow-sm); border: 1px solid #edf1f4;
       cursor: pointer; overflow: hidden; display: flex; flex-direction: column; gap: 10px;
       transition: transform .2s, box-shadow .2s, border-color .2s;
-      animation: cardIn .35s ease both;
+      content-visibility: auto; contain-intrinsic-size: auto 150px;
     }
     .waste-card::before { content: ""; position: absolute; left: 0; top: 0; right: 0; height: 5px; background: var(--c); }
-    .waste-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--c); }
+    @media (hover: hover) { .waste-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--c); } }
     .waste-card:focus-visible { outline: 3px solid var(--c); outline-offset: 2px; }
     .waste-card.wet { --c: var(--wet); --t: var(--wet-tint); --i: var(--wet-ink); }
     .waste-card.recycle { --c: var(--recycle); --t: var(--recycle-tint); --i: var(--recycle-ink); }
@@ -174,6 +175,16 @@
     .card-foot .go { color: var(--i); display: inline-flex; align-items: center; gap: 4px; transition: gap .2s; }
     .waste-card:hover .card-foot .go { gap: 8px; }
 
+    /* desktop: การ์ดกะทัดรัด สูงสุด 8 ต่อแถว (คอนเทนเนอร์กว้างสุด 1500px) */
+    @media (min-width: 1100px) {
+      .waste-grid { grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 14px; }
+      .waste-card { padding: 16px 14px 14px; }
+      .card-top { flex-direction: column; gap: 10px; }
+      .waste-title { font-size: 16px; }
+      .decomp { flex-direction: column; align-items: flex-start; gap: 2px; font-size: 13px; }
+      .card-foot .go-text { display: none; }
+    }
+
     /* skeleton */
     #loading { display: none; }
     .skeleton { height: 150px; border-radius: var(--radius); background: linear-gradient(90deg, #e9eef1 25%, #f4f7f8 37%, #e9eef1 63%); background-size: 400% 100%; animation: shimmer 1.3s infinite; }
@@ -193,7 +204,7 @@
     .site-footer .credit-name { font-weight: 800; color: #fff; font-size: 16px; margin: 2px 0; }
 
     /* ===== MODAL ===== */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 99999; justify-content: center; align-items: center; padding: 16px; }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.5); z-index: 99999; justify-content: center; align-items: center; padding: 16px; }
     .modal-overlay.show { display: flex; animation: fadeIn .2s ease; }
     .modal-card {
       --fill: #94a3b8; --accent: #334155; --tint: #f1f5f9; --onfill: #fff;
@@ -245,7 +256,6 @@
         <span class="brand-text">ThingD</span>
       </div>
       <h1>ทิ้งให้ถูกถัง <span>ทิ้งให้ดี</span></h1>
-      <p class="sub">ค้นหาว่าขยะแต่ละชิ้นต้องทิ้งที่ถังสีอะไร ใช้เวลาย่อยสลายนานแค่ไหน และมีวิธีจัดการอย่างไร</p>
       <div class="quote">ไม่มีคำว่า 'ทิ้งไป' อย่างแท้จริง เมื่อเราทิ้งอะไรไป มันก็ต้องไปอยู่ที่ใดที่หนึ่งเสมอ... - Annie Leonard</div>
       <div class="bin-bar" aria-hidden="true"><span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span></div>
     </div>
@@ -376,6 +386,8 @@
 
     function sortData() {
       allWasteData.sort((a, b) => String(a.name).localeCompare(String(b.name), 'th'));
+      allWasteData.forEach(it => { it._q = (String(it.name) + ' ' + String(it.detail)).toLowerCase(); });
+      updateCounts();
     }
 
     async function fetchSheetData() {
@@ -419,64 +431,64 @@
       document.querySelectorAll('[data-cnt]').forEach(el => { el.textContent = counts[el.dataset.cnt]; });
     }
 
+    const CARD_ICON = {};
+    Object.keys(TYPE_STYLE).forEach(k => { CARD_ICON[k] = TYPE_ICON(TYPE_STYLE[k].accent, 24)[k]; });
+    const ARROW = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+    let visibleItems = [];
+
     function renderCards() {
       const listContainer = document.getElementById('wasteList');
       const searchKeyword = document.getElementById('searchInput').value.toLowerCase();
       document.getElementById('searchWrap').classList.toggle('has-text', searchKeyword !== '');
-      listContainer.innerHTML = '';
-      updateCounts();
 
-      let matchCount = 0;
-      const list = currentSort === 'desc' ? [...allWasteData].reverse() : allWasteData;
+      const list = currentSort === 'desc' ? allWasteData.slice().reverse() : allWasteData;
+      visibleItems = list.filter(it =>
+        (currentCategory === 'all' || it.type === currentCategory) &&
+        (searchKeyword === '' || it._q.includes(searchKeyword))
+      );
 
-      list.forEach(item => {
-        const matchesSearch = String(item.name).toLowerCase().includes(searchKeyword) || String(item.detail).toLowerCase().includes(searchKeyword);
-        const matchesCategory = (currentCategory === 'all' || item.type === currentCategory);
-        if (!(matchesSearch && matchesCategory)) return;
-
+      const html = visibleItems.map((item, i) => {
         const s = TYPE_STYLE[item.type];
-        const delay = Math.min(matchCount * 25, 400);
-        matchCount++;
-
-        const card = document.createElement('div');
-        card.className = `waste-card ${item.type}`;
-        card.style.animationDelay = delay + 'ms';
-        card.tabIndex = 0;
-        card.setAttribute('role', 'button');
-        card.innerHTML = `
+        return `<div class="waste-card ${item.type}" data-i="${i}" tabindex="0" role="button">
           <div class="card-top">
-            <div class="card-ico">${TYPE_ICON(s.accent, 24)[item.type]}</div>
+            <div class="card-ico">${CARD_ICON[item.type]}</div>
             <div>
               <div class="waste-title">${esc(item.name)}</div>
               <div class="waste-type"><i></i>${esc(item.typeName)}</div>
             </div>
           </div>
           <div class="decomp"><b>⏳ ย่อยสลาย</b><span>${esc(item.time)}</span></div>
-          <div class="card-foot">
-            <span>${esc(s.bin)}</span>
-            <span class="go">ดูรายละเอียด <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-          </div>
-        `;
-        card.onclick = () => openModal(item);
-        card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(item); } };
-        listContainer.appendChild(card);
-      });
+          <div class="card-foot"><span>${s.bin}</span><span class="go"><span class="go-text">ดูรายละเอียด</span> ${ARROW}</span></div>
+        </div>`;
+      }).join('');
+
+      listContainer.innerHTML = html || `
+        <div class="not-found-box">
+          <div class="not-found-icon">🔎</div>
+          <div class="not-found-text">ไม่พบนะ! ลองหาใหม่ดูน้าา!</div>
+          <div class="not-found-sub">ลองใช้คำอื่น หรือเลือกหมวด “ทั้งหมด”</div>
+        </div>`;
 
       const total = allWasteData.length;
       const isFiltered = searchKeyword.trim() !== '' || currentCategory !== 'all';
       document.getElementById('resultCount').innerHTML = isFiltered
-        ? `พบ <b>${matchCount}</b> จากทั้งหมด <b>${total}</b> รายการ`
+        ? `พบ <b>${visibleItems.length}</b> จากทั้งหมด <b>${total}</b> รายการ`
         : `รายการขยะทั้งหมด <b>${total}</b> รายการ`;
-
-      if (matchCount === 0) {
-        listContainer.innerHTML = `
-          <div class="not-found-box">
-            <div class="not-found-icon">🔎</div>
-            <div class="not-found-text">ไม่พบนะ! ลองหาใหม่ดูน้าา!</div>
-            <div class="not-found-sub">ลองใช้คำอื่น หรือเลือกหมวด “ทั้งหมด”</div>
-          </div>`;
-      }
     }
+
+    // ใช้ event delegation แทนการผูก onclick ทีละการ์ด
+    (function () {
+      const el = document.getElementById('wasteList');
+      el.addEventListener('click', e => {
+        const c = e.target.closest('.waste-card');
+        if (c) openModal(visibleItems[+c.dataset.i]);
+      });
+      el.addEventListener('keydown', e => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        const c = e.target.closest('.waste-card');
+        if (c) { e.preventDefault(); openModal(visibleItems[+c.dataset.i]); }
+      });
+    })();
 
     function hasText(v) {
       return v !== null && v !== undefined && String(v).trim() !== '' && String(v).trim() !== '-';
@@ -509,7 +521,8 @@
     }
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalDirect(); });
 
-    function filterWaste() { renderCards(); }
+    let searchTimer;
+    function filterWaste() { clearTimeout(searchTimer); searchTimer = setTimeout(renderCards, 120); }
     function clearSearch() {
       const input = document.getElementById('searchInput');
       input.value = ''; input.focus(); renderCards();
