@@ -434,6 +434,15 @@
       return v !== null && v !== undefined && String(v).trim() !== '' && String(v).trim() !== '-';
     }
 
+    /* ใส่จุลภาคคั่นหลักพันให้ตัวเลขตั้งแต่ 4 หลักขึ้นไปในข้อความ เช่น 1500 → 1,500 และ 254547 → 254,547
+       ไม่แตะตัวเลขที่มีจุลภาคอยู่แล้ว (1,000,000) และเลขทศนิยม (1.2500) */
+    function fmtNum(v) {
+      if (v === null || v === undefined) return '';
+      return String(v).replace(/(^|[^\d.,])(\d{4,})(?!\d|,\d|\.\d)/g,
+        (m, pre, num) => pre + num.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+    }
+    const fmtInt = n => Number(n).toLocaleString('en-US');
+
     /* สร้าง HTML ของการ์ดครั้งเดียวต่อรายการ แล้วเก็บไว้ใช้ซ้ำทุกครั้งที่ค้นหา/กรอง */
     function cardHTML(item) {
       const s = TYPE_STYLE[item.type];
@@ -441,7 +450,7 @@
         `<div class="card-top"><div class="card-ico">${icon(item.type, 24)}</div>` +
         `<div><div class="waste-title">${esc(item.name)}</div>` +
         `<div class="waste-type"><i></i>${esc(item.typeName)}</div></div></div>` +
-        `<div class="decomp"><b>⏳ ย่อยสลาย</b><span>${hasText(item.time) ? esc(item.time) : '-'}</span></div>` +
+        `<div class="decomp"><b>⏳ ย่อยสลาย</b><span>${hasText(item.time) ? esc(fmtNum(item.time)) : '-'}</span></div>` +
         `<div class="card-foot"><span>${esc(s.bin)}</span><span class="go">ดูรายละเอียด ${ARROW}</span></div>` +
         `</div>`;
     }
@@ -451,7 +460,9 @@
       allWasteData.sort((a, b) => thaiCollator.compare(String(a.name), String(b.name)));
       allWasteData.forEach((it, i) => {
         it.i = i;
-        it.s = (String(it.name) + '\n' + String(it.detail)).toLowerCase();
+        // ค้นหาได้ทั้งแบบเลขเดิม (1500) และแบบมีจุลภาค (1,500)
+        const raw = String(it.name) + '\n' + String(it.detail);
+        it.s = (raw + '\n' + fmtNum(raw)).toLowerCase();
         it.html = null;          // สร้าง HTML ของการ์ดตอนที่จะแสดงจริงเท่านั้น
       });
       updateCounts();
@@ -544,7 +555,7 @@
     function updateCounts() {
       const counts = { all: allWasteData.length, wet: 0, recycle: 0, general: 0, hazard: 0 };
       allWasteData.forEach(i => counts[i.type]++);
-      document.querySelectorAll('[data-cnt]').forEach(el => { el.textContent = counts[el.dataset.cnt]; });
+      document.querySelectorAll('[data-cnt]').forEach(el => { el.textContent = fmtInt(counts[el.dataset.cnt]); });
     }
 
     function renderCards() {
@@ -564,8 +575,8 @@
       const total = allWasteData.length;
       const isFiltered = kw !== '' || currentCategory !== 'all';
       $('resultCount').innerHTML = isFiltered
-        ? `พบ <b>${shown}</b> จากทั้งหมด <b>${total}</b> รายการ`
-        : `รายการขยะทั้งหมด <b>${total}</b> รายการ`;
+        ? `พบ <b>${fmtInt(shown)}</b> จากทั้งหมด <b>${fmtInt(total)}</b> รายการ`
+        : `รายการขยะทั้งหมด <b>${fmtInt(total)}</b> รายการ`;
 
       if (firstPaint && total > 0) { listEl.classList.add('fade'); firstPaint = false; }
     }
@@ -594,8 +605,8 @@
       $('mTitle').textContent = item.name;
       $('mType').textContent = item.typeName;
       $('mBin').textContent = '🗑️ ทิ้งที่' + s.bin;
-      $('mTime').textContent = hasText(item.time) ? item.time : 'ไม่มีข้อมูล';
-      $('mDetail').textContent = hasText(item.detail) ? item.detail : 'ยังไม่มีรายละเอียดเพิ่มเติม';
+      $('mTime').textContent = hasText(item.time) ? fmtNum(item.time) : 'ไม่มีข้อมูล';
+      $('mDetail').textContent = hasText(item.detail) ? fmtNum(item.detail) : 'ยังไม่มีรายละเอียดเพิ่มเติม';
 
       card.scrollTop = 0;
       $('modalOverlay').classList.add('show');
